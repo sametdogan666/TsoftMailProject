@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading;
+using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Core.Utilities.Results;
 using GemBox.Email.Imap;
@@ -61,6 +62,7 @@ namespace TsoftMailProject.Business.Concrete
         //    }
         //}
 
+        [SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveAllEmail(string isSaved = "n")
         {
             using (var emailClient = new Pop3Client())
@@ -96,7 +98,7 @@ namespace TsoftMailProject.Business.Concrete
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveAllEmail) ;
             }
         }
-
+        //[SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, string isSaved = "n")
         {
             using (var emailClient = new Pop3Client())
@@ -169,7 +171,7 @@ namespace TsoftMailProject.Business.Concrete
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail) ;
             }
         }
-
+        //[SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveEmailByDay(DateTime start, DateTime end, string isSaved = "n")
         {
             using (var emailClient = new Pop3Client())

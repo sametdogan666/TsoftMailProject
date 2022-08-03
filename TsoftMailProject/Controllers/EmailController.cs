@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
@@ -29,7 +30,6 @@ namespace EmailApp.Controllers
         //    _emailService.Send(request);
         //    return Ok();
         //}
-
         [HttpGet("receiveallemail")]
         public IActionResult ReceiveAllEmail(string isSaved = "n")
         {
