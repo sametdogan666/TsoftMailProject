@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
-using System.Threading;
 using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Core.Utilities.Results;
-using GemBox.Email.Imap;
-using GemBox.Email.Security;
 using MailKit;
+using MailKit.Net.Imap;
 using MailKit.Net.Pop3;
-using MailKit.Net.Smtp;
 using MailKit.Search;
-using MimeKit;
-using MimeKit.Text;
 using TsoftMailProject.Business.Abstract;
 using TsoftMailProject.Configuration.Abstract;
 using TsoftMailProject.DataAccess.Abstract;
 using TsoftMailProject.Entities.Concrete;
-using ImapClient = MailKit.Net.Imap.ImapClient;
-using MailMessage = GemBox.Email.MailMessage;
+
+
 
 namespace TsoftMailProject.Business.Concrete
 {
@@ -62,6 +56,7 @@ namespace TsoftMailProject.Business.Concrete
         //    }
         //}
 
+       
         [SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveAllEmail(string isSaved = "n")
         {
@@ -75,9 +70,9 @@ namespace TsoftMailProject.Business.Concrete
 
                 List<EmailMessage> emails = new List<EmailMessage>();
 
-                for (int i = 0; i < emailClient.Count; i++)
+                for (int i = emailClient.Count ; i > 0; i--)
                 {
-                    var message = emailClient.GetMessage(i);
+                    var message = emailClient.GetMessage(i-1);
                     var emailMessage = new EmailMessage
                     {
                         MessageID = message.MessageId,
@@ -95,7 +90,7 @@ namespace TsoftMailProject.Business.Concrete
                 }
 
                 //emailClient.Disconnect(true);
-                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveAllEmail) ;
+                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveAllEmail);
             }
         }
         //[SecuredOperation("admin")]
@@ -130,7 +125,7 @@ namespace TsoftMailProject.Business.Concrete
                 }
 
                 //emailClient.Disconnect(true);
-                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveLimitedEmail) ;
+                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveLimitedEmail);
             }
 
 
@@ -149,26 +144,41 @@ namespace TsoftMailProject.Business.Concrete
 
                 emailClient.Authenticate(_emailConfiguration.PopUsername, _emailConfiguration.PopPassword);
 
-                var items = emailClient.Inbox.Fetch(0, -1,
-                    MessageSummaryItems.UniqueId | MessageSummaryItems.Envelope);
+
+
+                /* var items = emailClient.Inbox.Fetch(0, -1,
+                     MessageSummaryItems.UniqueId | MessageSummaryItems.Envelope);*/
+
+                var query = SearchQuery.All;
+                var uids = emailClient.Inbox.Search(query);
+                var items = emailClient.Inbox.Fetch(uids, MessageSummaryItems.Full).Reverse();
 
                 List<EmailMessage> emails = new List<EmailMessage>(); ;
 
                 foreach (var item in items)
                 {
-                    var emailMessage = new EmailMessage
+                    if (item.Flags.Value.HasFlag(MessageFlags.Seen))
                     {
-                        MessageID = item.Envelope.MessageId,
-                        Content = item.TextBody.ToString(),
-                        Subject = item.Envelope.Subject,
-                        MessageDate = item.Date.DateTime,
-                        FromAddresses = item.Envelope.From.ToString(),
-                        ToAddresses = item.Envelope.To.ToString()
-                    };
-                    emails.Add(emailMessage);
+                        continue;
+                    }
+                    else
+                    {
+                        var emailMessage = new EmailMessage
+                        {
+                            MessageID = item.Envelope.MessageId,
+                            Content = item.TextBody.ToString(),
+                            Subject = item.Envelope.Subject,
+                            MessageDate = item.Date.DateTime,
+                            FromAddresses = item.Envelope.From.ToString(),
+                            ToAddresses = item.Envelope.To.ToString()
+                        };
+                        emails.Add(emailMessage);
+                    }
+
+
                 }
-                //client.Disconnect(true);
-                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail) ;
+                emailClient.Disconnect(true);
+                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail);
             }
         }
         //[SecuredOperation("admin")]
@@ -210,6 +220,8 @@ namespace TsoftMailProject.Business.Concrete
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveEmailByDay);
             }
         }
+
+
 
     }
 }

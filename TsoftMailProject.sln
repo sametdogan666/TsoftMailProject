@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entiti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailService", "EmailService\EmailService.csproj", "{7DBEF3C7-046F-4E29-AD40-82891DB98AC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{60CA7B7B-47C1-4747-AB92-F110FEE70176}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{60CA7B7B-47C1-4747-AB92-F110FEE70176}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUI", "ConsoleUI\ConsoleUI.csproj", "{AAB801D2-5BC3-4993-BF37-4C51D2AAFDE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{60CA7B7B-47C1-4747-AB92-F110FEE70176}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60CA7B7B-47C1-4747-AB92-F110FEE70176}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60CA7B7B-47C1-4747-AB92-F110FEE70176}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAB801D2-5BC3-4993-BF37-4C51D2AAFDE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAB801D2-5BC3-4993-BF37-4C51D2AAFDE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAB801D2-5BC3-4993-BF37-4C51D2AAFDE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAB801D2-5BC3-4993-BF37-4C51D2AAFDE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

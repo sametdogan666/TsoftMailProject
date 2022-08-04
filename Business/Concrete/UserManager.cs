@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Business.Abstract;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
 using Core.Entities.Concrete;
 using DataAccess.Abstract;
 
@@ -23,6 +21,7 @@ namespace Business.Concrete
             return _userDal.GetClaims(user);
         }
 
+        [ValidationAspect(typeof(UserValidator))]
         public void Add(User user)
         {
             _userDal.Add(user);

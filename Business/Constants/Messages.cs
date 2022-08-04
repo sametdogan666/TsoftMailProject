@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Business.Constants
 {
     public class Messages
@@ -12,11 +7,6 @@ namespace Business.Constants
         public static string ReceiveLimitedEmail = "Belirtilen sayıda mail getirildi";
         public static string ReceiveEmailByDay = "Belirtilen tarihler arasındaki mailler getirildi";
         public static string ReceiveUnreadEmail = "Okunmamış mailler getirildi";
-
-        public static string UserAdded = "Kullanıcı eklendi";
-        public static string UserDeleted = "Kullanıcı silindi";
-        public static string UserUpdated = "Kullanıcı güncellendi";
-        public static string UserListed = "Kullanıcılar listelendi";
 
         public static string AuthorizationDenied = "Yetkiniz yok";
         public static string UserRegistered = "Kayıt oldu";
