@@ -78,6 +78,5 @@ namespace EmailApp.Controllers
             return BadRequest(result);
         }
 
-
     }
 }
