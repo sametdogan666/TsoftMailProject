@@ -15,5 +15,7 @@ namespace Business.Constants
         public static string SuccessfulLogin = "Giriş başarılı";
         public static string UserAlreadyExists = "Kullancı mevcut";
         public static string AccessTokenCreated = "Erişim jetonu oluşturuldu";
+
+        public static string EmailAlreadyExists = "Mail veritabaninda zaten kayitli";
     }
 }

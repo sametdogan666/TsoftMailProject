@@ -7,11 +7,10 @@ namespace TsoftMailProject.Business.Abstract
 {
     public interface IEmailService
     {
-        //void Send(EmailMessage emailMessage);
-        IDataResult<List<EmailMessage>> ReceiveAllEmail(string isSaved = "n");
-        IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, string isSaved = "n");
-        IDataResult<List<EmailMessage>>  ReceiveUnreadEmail();
-        IDataResult<List<EmailMessage>>  ReceiveEmailByDay(DateTime start, DateTime end, string isSaved = "n");
+        IDataResult<List<EmailMessage>> ReceiveAllEmail(bool isSaved = false);
+        IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, bool isSaved = false);
+        IDataResult<List<EmailMessage>>  ReceiveUnreadEmail(bool isSaved = false);
+        IDataResult<List<EmailMessage>>  ReceiveEmailByDay(DateTime start, DateTime end, bool isSaved = false);
 
     }
 }

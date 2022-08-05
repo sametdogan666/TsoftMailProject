@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Business.BusinessAspects.Autofac;
 using Business.Constants;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using MailKit;
 using MailKit.Net.Imap;
@@ -11,6 +12,7 @@ using MailKit.Search;
 using TsoftMailProject.Business.Abstract;
 using TsoftMailProject.Configuration.Abstract;
 using TsoftMailProject.DataAccess.Abstract;
+using TsoftMailProject.DataAccess.Concrete.EntityFramework;
 using TsoftMailProject.Entities.Concrete;
 
 
@@ -28,37 +30,7 @@ namespace TsoftMailProject.Business.Concrete
             _emailDal = emailDal;
         }
 
-        //public void Send(EmailMessage emailMessage)
-        //{
-
-        //    var message = new MimeMessage();
-        //    message.To.AddRange(emailMessage.ToAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
-        //    message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
-
-        //    message.Subject = emailMessage.Subject;
-
-        //    message.Body = new TextPart(TextFormat.Html)
-        //    {
-        //        Text = emailMessage.Content
-        //    };
-        //    using (var emailClient = new SmtpClient())
-        //    {
-
-        //        emailClient.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort, true);
-
-        //        emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
-
-        //        emailClient.Authenticate(_emailConfiguration.SmtpUsername, _emailConfiguration.SmtpPassword);
-
-        //        emailClient.Send(message);
-
-        //        emailClient.Disconnect(true);
-        //    }
-        //}
-
-
-        [SecuredOperation("admin")]
-        public IDataResult<List<EmailMessage>> ReceiveAllEmail(string isSaved = "n")
+        public IDataResult<List<EmailMessage>> ReceiveAllEmail(bool isSaved = false)
         {
             using (var emailClient = new Pop3Client())
             {
@@ -83,18 +55,21 @@ namespace TsoftMailProject.Business.Concrete
                         ToAddresses = message.To.ToString()
                     };
                     emails.Add(emailMessage);
-                    if (isSaved.ToString() == "y")
+                    if (isSaved == true)
                     {
-                        _emailDal.Add(emailMessage);
+                        var result = BusinessRules.Run(CheckIsMailAlreadySaved(emailMessage));
+
+                        if (result == null)
+                        {
+                            _emailDal.Add(emailMessage);
+                        }
                     }
                 }
-
-                //emailClient.Disconnect(true);
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveAllEmail);
             }
         }
-        //[SecuredOperation("admin")]
-        public IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, string isSaved = "n")
+        [SecuredOperation("admin")]
+        public IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, bool isSaved = false)
         {
             using (var emailClient = new Pop3Client())
             {
@@ -105,9 +80,10 @@ namespace TsoftMailProject.Business.Concrete
                 emailClient.Authenticate(_emailConfiguration.PopUsername, _emailConfiguration.PopPassword);
 
                 List<EmailMessage> emails = new List<EmailMessage>();
-                for (int i = 0; i < maxCount; i++)
+
+                for (int i = emailClient.Count; i > 0; i--)
                 {
-                    var message = emailClient.GetMessage(i);
+                    var message = emailClient.GetMessage(i - 1);
                     var emailMessage = new EmailMessage
                     {
                         MessageID = message.MessageId,
@@ -118,22 +94,21 @@ namespace TsoftMailProject.Business.Concrete
                         ToAddresses = message.To.ToString()
                     };
                     emails.Add(emailMessage);
-                    if (isSaved.ToString() == "y")
+                    if (isSaved == true)
                     {
-                        _emailDal.Add(emailMessage);
+                        var result = BusinessRules.Run(CheckIsMailAlreadySaved(emailMessage));
+
+                        if (result == null)
+                        {
+                            _emailDal.Add(emailMessage);
+                        }
                     }
                 }
-
-                //emailClient.Disconnect(true);
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveLimitedEmail);
             }
-
-
-
-
         }
 
-        public IDataResult<List<EmailMessage>> ReceiveUnreadEmail()
+        public IDataResult<List<EmailMessage>> ReceiveUnreadEmail(bool isSaved = false)
         {
 
             using (var emailClient = new ImapClient())
@@ -146,9 +121,6 @@ namespace TsoftMailProject.Business.Concrete
 
                 emailClient.Inbox.Open(MailKit.FolderAccess.ReadWrite);
 
-                /* var items = emailClient.Inbox.Fetch(0, -1,
-                     MessageSummaryItems.UniqueId | MessageSummaryItems.Envelope);*/
-
                 var query = SearchQuery.NotSeen;
                 var uids = emailClient.Inbox.Search(query);
                 var items = emailClient.Inbox.Fetch(uids, MessageSummaryItems.Full).Reverse();
@@ -157,26 +129,32 @@ namespace TsoftMailProject.Business.Concrete
 
                 foreach (var item in items)
                 {
-                  
-                        var emailMessage = new EmailMessage
+
+                    var emailMessage = new EmailMessage
+                    {
+                        MessageID = item.Envelope.MessageId,
+                        Content = item.BodyParts.ToString(),
+                        Subject = item.Envelope.Subject,
+                        MessageDate = item.Date.DateTime,
+                        FromAddresses = item.Envelope.From.ToString(),
+                        ToAddresses = item.Envelope.To.ToString()
+                    };
+                    emails.Add(emailMessage);
+                    if (isSaved == true)
+                    {
+                        var result = BusinessRules.Run(CheckIsMailAlreadySaved(emailMessage));
+
+                        if (result == null)
                         {
-                            MessageID = item.Envelope.MessageId,
-                            Content = item.TextBody.ToString(),
-                            Subject = item.Envelope.Subject,
-                            MessageDate = item.Date.DateTime,
-                            FromAddresses = item.Envelope.From.ToString(),
-                            ToAddresses = item.Envelope.To.ToString()
-                        };
-                        emails.Add(emailMessage);
-              
-
-
+                            _emailDal.Add(emailMessage);
+                        }
+                    }
                 }
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail);
             }
         }
         //[SecuredOperation("admin")]
-        public IDataResult<List<EmailMessage>> ReceiveEmailByDay(DateTime start, DateTime end, string isSaved = "n")
+        public IDataResult<List<EmailMessage>> ReceiveEmailByDay(DateTime start, DateTime end, bool isSaved = false)
         {
             using (var emailClient = new Pop3Client())
             {
@@ -203,16 +181,30 @@ namespace TsoftMailProject.Business.Concrete
                             ToAddresses = message.To.ToString()
                         };
                         emails.Add(emailMessage);
-                        if (isSaved.ToString() == "y")
+                        if (isSaved == true)
                         {
-                            _emailDal.Add(emailMessage);
+                            var result = BusinessRules.Run(CheckIsMailAlreadySaved(emailMessage));
+
+                            if (result == null)
+                            {
+                                _emailDal.Add(emailMessage);
+                            }
+
                         }
                     }
                 }
-
-                //emailClient.Disconnect(true);
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveEmailByDay);
             }
+        }
+
+        private IResult CheckIsMailAlreadySaved(EmailMessage emailMessage)
+        {
+            var result = _emailDal.Get(e => e.MessageID == emailMessage.MessageID);
+            if (result != null)
+            {
+                return new ErrorResult(Messages.EmailAlreadyExists);
+            }
+            return new SuccessResult();
         }
 
     }

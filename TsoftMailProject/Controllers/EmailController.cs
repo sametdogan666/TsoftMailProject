@@ -23,15 +23,8 @@ namespace EmailApp.Controllers
             _emailService = emailService;
         }
 
-
-        //[HttpPost("sendemail")]
-        //public IActionResult SendEmail(EmailMessage request)
-        //{
-        //    _emailService.Send(request);
-        //    return Ok();
-        //}
         [HttpGet("receiveallemail")]
-        public IActionResult ReceiveAllEmail(string isSaved = "n")
+        public IActionResult ReceiveAllEmail(bool isSaved = false)
         {
             var result = _emailService.ReceiveAllEmail(isSaved);
             if (result.Success)
@@ -43,7 +36,7 @@ namespace EmailApp.Controllers
         }
 
         [HttpGet("receivelimitedemail")]
-        public IActionResult ReceiveLimitedEmail(int maxCount = 10, string isSaved = "n")
+        public IActionResult ReceiveLimitedEmail(int maxCount = 10, bool isSaved = false)
         {
             var result = _emailService.ReceiveLimitedEmail(maxCount, isSaved);
             if (result.Success)
@@ -55,9 +48,9 @@ namespace EmailApp.Controllers
         }
 
         [HttpGet("receiveunreademail")]
-        public IActionResult ReceiveUnreadEmail()
+        public IActionResult ReceiveUnreadEmail(bool isSaved = false)
         {
-            var result = _emailService.ReceiveUnreadEmail();
+            var result = _emailService.ReceiveUnreadEmail(isSaved);
             if (result.Success)
             {
                 return Ok(result);
@@ -67,7 +60,7 @@ namespace EmailApp.Controllers
         }
 
         [HttpGet("receiveemailbyday")]
-        public IActionResult ReceiveEmailByDay(DateTime start, DateTime end, string isSaved = "n")
+        public IActionResult ReceiveEmailByDay(DateTime start, DateTime end, bool isSaved = false)
         {
             var result = _emailService.ReceiveEmailByDay(start, end, isSaved);
             if (result.Success)

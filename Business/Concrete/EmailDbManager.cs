@@ -17,7 +17,6 @@ namespace TsoftMailProject.Business.Concrete
 
         public void Delete(EmailMessage emailMessage)
         {
-            
             _emailDal.Delete(emailMessage);
         }
 
