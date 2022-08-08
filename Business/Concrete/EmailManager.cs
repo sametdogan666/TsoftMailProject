@@ -30,6 +30,7 @@ namespace TsoftMailProject.Business.Concrete
             _emailDal = emailDal;
         }
 
+        [SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveAllEmail(bool isSaved = false)
         {
             using (var emailClient = new Pop3Client())
@@ -68,22 +69,76 @@ namespace TsoftMailProject.Business.Concrete
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveAllEmail);
             }
         }
-        [SecuredOperation("admin")]
+
+
         public IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, bool isSaved = false)
         {
-            using (var emailClient = new Pop3Client())
+            using (var emailClient = new ImapClient())
             {
-                emailClient.Connect(_emailConfiguration.PopServer, _emailConfiguration.PopPort, true);
+                emailClient.Connect("imap.gmail.com", 993, true);
 
                 emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
 
                 emailClient.Authenticate(_emailConfiguration.PopUsername, _emailConfiguration.PopPassword);
 
-                List<EmailMessage> emails = new List<EmailMessage>();
+                emailClient.Inbox.Open(MailKit.FolderAccess.ReadWrite);
 
-                for (int i = emailClient.Count; i > 0; i--)
+                var uids = emailClient.Inbox.Search(SearchQuery.All).Reverse();
+
+                List<EmailMessage> emails = new List<EmailMessage>(); ;
+                foreach (var uid in uids)
                 {
-                    var message = emailClient.GetMessage(i - 1);
+                    var message = emailClient.Inbox.GetMessage(uid);
+
+                    if (maxCount > 0)
+                    {
+                        var emailMessage = new EmailMessage
+                        {
+                            MessageID = message.MessageId,
+                            Content = message.TextBody,
+                            Subject = message.Subject,
+                            MessageDate = message.Date.DateTime,
+                            FromAddresses = message.From.ToString(),
+                            ToAddresses = message.To.ToString()
+                        };
+                        emails.Add(emailMessage);
+                        if (isSaved == true)
+                        {
+                            var result = BusinessRules.Run(CheckIsMailAlreadySaved(emailMessage));
+
+                            if (result == null)
+                            {
+                                _emailDal.Add(emailMessage);
+                            }
+                        }
+                    }
+
+                    maxCount--;
+                }
+                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail);
+            }
+        }
+        [SecuredOperation("admin")]
+        public IDataResult<List<EmailMessage>> ReceiveUnreadEmail(bool isSaved = false)
+        {
+
+            using (var emailClient = new ImapClient())
+            {
+                emailClient.Connect("imap.gmail.com", 993, true);
+
+                emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
+
+                emailClient.Authenticate(_emailConfiguration.PopUsername, _emailConfiguration.PopPassword);
+
+                emailClient.Inbox.Open(MailKit.FolderAccess.ReadWrite);
+
+                var uids = emailClient.Inbox.Search(SearchQuery.NotSeen);
+
+                List<EmailMessage> emails = new List<EmailMessage>(); ;
+                foreach (var uid in uids)
+                {
+                    var message = emailClient.Inbox.GetMessage(uid);
+
                     var emailMessage = new EmailMessage
                     {
                         MessageID = message.MessageId,
@@ -104,56 +159,9 @@ namespace TsoftMailProject.Business.Concrete
                         }
                     }
                 }
-                return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveLimitedEmail);
-            }
-        }
-
-        public IDataResult<List<EmailMessage>> ReceiveUnreadEmail(bool isSaved = false)
-        {
-
-            using (var emailClient = new ImapClient())
-            {
-                emailClient.Connect("imap.gmail.com", 993, true);
-
-                emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
-
-                emailClient.Authenticate(_emailConfiguration.PopUsername, _emailConfiguration.PopPassword);
-
-                emailClient.Inbox.Open(MailKit.FolderAccess.ReadWrite);
-
-                var query = SearchQuery.NotSeen;
-                var uids = emailClient.Inbox.Search(query);
-                var items = emailClient.Inbox.Fetch(uids, MessageSummaryItems.Full).Reverse();
-
-                List<EmailMessage> emails = new List<EmailMessage>(); ;
-
-                foreach (var item in items)
-                {
-
-                    var emailMessage = new EmailMessage
-                    {
-                        MessageID = item.Envelope.MessageId,
-                        Content = item.BodyParts.ToString(),
-                        Subject = item.Envelope.Subject,
-                        MessageDate = item.Date.DateTime,
-                        FromAddresses = item.Envelope.From.ToString(),
-                        ToAddresses = item.Envelope.To.ToString()
-                    };
-                    emails.Add(emailMessage);
-                    if (isSaved == true)
-                    {
-                        var result = BusinessRules.Run(CheckIsMailAlreadySaved(emailMessage));
-
-                        if (result == null)
-                        {
-                            _emailDal.Add(emailMessage);
-                        }
-                    }
-                }
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail);
             }
         }
-        //[SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveEmailByDay(DateTime start, DateTime end, bool isSaved = false)
         {
             using (var emailClient = new Pop3Client())
