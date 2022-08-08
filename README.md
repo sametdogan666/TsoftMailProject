@@ -52,10 +52,3 @@ Opsiyonel olarak veritabanına kaydetme ve silme işlemleri de gerçekleştirili
 -Swashbuckle.AspNetCore(5.6.3)<br/>
 -Microsoft.AspNetCore.Authentication.JwtBearer(5.0.17)<br/>
 
-## Updates
-
-### 1.Gün Görevi
--Entities, DataAccess, Business ve Console katmanlarını oluşturuldu. <br/>
--Bir *Car* nesnesi oluşturulup,Id, BrandId, ColorId, ModelYear, DailyPrice, Description alanları eklendi <br/>
--InMemory formatta GetById, GetAll, Add, Update, Delete oprasyonları yazıldı. <br/>
-
