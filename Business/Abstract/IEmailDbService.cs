@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Core.Utilities.Results;
 using TsoftMailProject.Entities.Concrete;
 
 namespace TsoftMailProject.Business.Abstract
 {
     public interface IEmailDbService
     {
-        void Delete(EmailMessage emailMessage);
+        IResult Delete(EmailMessage emailMessage);
         List<EmailMessage> GetAll();
     }
 }

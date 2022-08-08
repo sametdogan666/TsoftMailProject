@@ -70,7 +70,7 @@ namespace TsoftMailProject.Business.Concrete
             }
         }
 
-
+        [SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveLimitedEmail(int maxCount = 10, bool isSaved = false)
         {
             using (var emailClient = new ImapClient())
@@ -162,6 +162,7 @@ namespace TsoftMailProject.Business.Concrete
                 return new SuccessDataResult<List<EmailMessage>>(emails, Messages.ReceiveUnreadEmail);
             }
         }
+        [SecuredOperation("admin")]
         public IDataResult<List<EmailMessage>> ReceiveEmailByDay(DateTime start, DateTime end, bool isSaved = false)
         {
             using (var emailClient = new Pop3Client())

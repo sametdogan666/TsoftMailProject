@@ -17,5 +17,6 @@ namespace Business.Constants
         public static string AccessTokenCreated = "Erişim jetonu oluşturuldu";
 
         public static string EmailAlreadyExists = "Mail veritabaninda zaten kayitli";
+        public static string deletedEmail = "Mail veritabanindan silindi";
     }
 }
