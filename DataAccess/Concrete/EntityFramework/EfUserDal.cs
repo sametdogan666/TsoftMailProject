@@ -10,7 +10,7 @@ using TsoftMailProject.DataAccess.Concrete.EntityFramework;
 
 namespace DataAccess.Concrete.EntityFramework
 {
-    public class EfUserDal : EfEntityRepositoryBase<User, TSoftMailProjectContext>, IUserDal
+    public class EfUserDal : EfEntityRepositoryBase<User, TSoftMailProjectPostgreContext>, IUserDal
     {
         public List<OperationClaim> GetClaims(User user)
         {
