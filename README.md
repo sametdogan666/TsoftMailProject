@@ -6,8 +6,18 @@ Opsiyonel olarak veritabanına kaydetme ve silme işlemleri de gerçekleştirili
 
  ### Veritabanı Etkinleştirme
 
+ ## Microsoft Sql Server
  `script.sql` içinde `7.` ve `9.` satırda bulunan dosya yolu kullanıcının bilgisayarına göre düzenlenmelidir. Bu işlemden sonra `script.sql` dosyası mevcut veritabanı üzerinde çalıştırılmalıdır (SQLServer).
-  Eğer aynı isimde veritabanı varsa script içinde değişiklik yapılmalıdır. Veritabanı ismi veya sunucu ismi farklıysa `DataAccess/Concrete/EntityFramework/ReCapProjectContext.cs` dosyasındaki bağlantı adresi buna göre değiştirilmelidir.
+  Eğer aynı isimde veritabanı varsa script içinde değişiklik yapılmalıdır. Veritabanı ismi veya sunucu ismi farklıysa `DataAccess/Concrete/EntityFramework/TSoftMailProjectContext.cs` dosyasındaki bağlantı adresi buna göre değiştirilmelidir.
+
+  ## PostgreSql
+  'postgreScript' dosyası mevcut veritabanı üzerinde çalıştırılmalıdır.
+  Eğer aynı isimde veritabanı varsa script içinde değişiklik yapılmalıdır. Veritabanı ismi veya sunucu ismi farklıysa `DataAccess/Concrete/EntityFramework/TSoftMailProjectPostgreContext.cs` dosyasındaki bağlantı adresi buna göre değiştirilmelidir.
+
+  ### Veritabanı Seçimi
+
+`DataAccess/Concrete/EntityFramework/' içerisinde yer alan Dal etiketi ile biten sınıflar için Ms Sql Server için TSoftMailProjectContext sınıfı,
+PostgreSql için TSoftMailProjectPostgreContext sınıfı EfEntityRepositoryBase içerisine referans olarak verilmelidir.
 
   ### Mail Hesabı Konfigürasyonu
   <br>
@@ -51,4 +61,10 @@ Opsiyonel olarak veritabanına kaydetme ve silme işlemleri de gerçekleştirili
 ### WebAPI
 -Swashbuckle.AspNetCore(5.6.3)<br/>
 -Microsoft.AspNetCore.Authentication.JwtBearer(5.0.17)<br/>
+
+## Desteklenen Veritabanları
+
+### Microsoft SQL Server 18
+
+### PostgreSQL 14
 
