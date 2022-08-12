@@ -1,7 +1,7 @@
 ﻿## Başlarken
 
-Çok katlı mimari örneği olan bu proje başlıca Business,DataAccess,Core,Entities ve WebAPI katmanlarından oluşmaktadır.
-Bu proje mail Servisinden gelen maillerin tümünü görüntüleme, okunmamış mailleri görüntüleme, belirtilen tarih aralığındaki mailleri görüntüleme, belirtilen adet kadar mail görüntüleme işlemlerini gerçekleştirir.
+Çok katmanlı mimari örneği olan bu proje başlıca Business,DataAccess,Core,Entities ve WebAPI katmanlarından oluşmaktadır.
+Bu proje mail servisinden gelen maillerin; tümünü görüntüleme, okunmamış mailleri görüntüleme, belirtilen tarih aralığındaki mailleri görüntüleme, belirtilen adet kadar mail görüntüleme işlemlerini gerçekleştirir.
 Opsiyonel olarak veritabanına kaydetme ve silme işlemleri de gerçekleştirilir.
 
  ### Veritabanı Etkinleştirme
